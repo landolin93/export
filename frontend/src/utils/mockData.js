@@ -3,7 +3,13 @@ export const createEmptyBoard = () => {
   return Array.from({ length: 6 }, () => Array(6).fill('empty'));
 };
 
-export const mockGameState = {
+export const defaultGameSettings = {
+  numberOfRounds: 8,
+  emptySquaresToWin: 1,
+  maxDirections: 8
+};
+
+export const createInitialGameState = (settings = defaultGameSettings) => ({
   board: createEmptyBoard(),
   currentPlayer: 1,
   gamePhase: 'placement', // 'placement' or 'direction'
@@ -11,8 +17,9 @@ export const mockGameState = {
   availableDirections: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW'],
   winner: null,
   starsPlaced: 0,
-  gameHistory: []
-};
+  gameHistory: [],
+  settings: { ...settings }
+});
 
 // Direction vectors for calculating circle positions
 export const directionVectors = {
@@ -63,20 +70,27 @@ export const mockGameLogic = {
     return newBoard;
   },
 
-  checkWinner: (board, round) => {
-    // Game ends after 8 rounds
-    if (round > 8) {
-      // Check if any empty squares remain
+  checkWinner: (board, round, settings) => {
+    // Game ends after specified number of rounds
+    if (round > settings.numberOfRounds) {
+      // Count empty squares
+      let emptyCount = 0;
       for (let row = 0; row < 6; row++) {
         for (let col = 0; col < 6; col++) {
           if (board[row][col] === 'empty') {
-            return 1; // Player 1 wins if empty squares remain
+            emptyCount++;
           }
         }
       }
-      return 2; // Player 2 wins if board is completely filled
+      
+      // Player 1 wins if empty squares >= threshold
+      if (emptyCount >= settings.emptySquaresToWin) {
+        return { winner: 1, emptyCount };
+      } else {
+        return { winner: 2, emptyCount };
+      }
     }
-    return null;
+    return { winner: null, emptyCount: null };
   },
 
   countStars: (board) => {
@@ -89,5 +103,30 @@ export const mockGameLogic = {
       }
     }
     return count;
+  },
+
+  countEmptySquares: (board) => {
+    let count = 0;
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 6; col++) {
+        if (board[row][col] === 'empty') {
+          count++;
+        }
+      }
+    }
+    return count;
+  },
+
+  createGameStateSnapshot: (gameState) => {
+    return {
+      board: gameState.board.map(row => [...row]),
+      currentPlayer: gameState.currentPlayer,
+      gamePhase: gameState.gamePhase,
+      round: gameState.round,
+      availableDirections: [...gameState.availableDirections],
+      winner: gameState.winner,
+      starsPlaced: gameState.starsPlaced,
+      settings: { ...gameState.settings }
+    };
   }
 };
