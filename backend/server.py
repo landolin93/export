@@ -10,11 +10,11 @@ from typing import List
 import uuid
 from datetime import datetime
 
-# Import game routes
-from routes.game_routes import router as game_router
-
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
+
+# Import game routes after loading environment variables
+from routes.game_routes import router as game_router
 
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
