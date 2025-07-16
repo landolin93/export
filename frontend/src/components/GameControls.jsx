@@ -3,7 +3,7 @@ import { Button } from './ui/button';
 import { Card } from './ui/card';
 import { Badge } from './ui/badge';
 
-const GameControls = ({ onUndo, onNewGame, canUndo, gameHistory, currentSettings }) => {
+const GameControls = ({ onUndo, onNewGame, canUndo, gameHistory, currentSettings, disabled = false }) => {
   return (
     <Card className="p-4 bg-gradient-to-br from-slate-50 to-gray-100">
       <div className="space-y-3">
@@ -31,10 +31,10 @@ const GameControls = ({ onUndo, onNewGame, canUndo, gameHistory, currentSettings
         <div className="space-y-2">
           <Button
             onClick={onUndo}
-            disabled={!canUndo}
+            disabled={!canUndo || disabled}
             variant="outline"
             className={`w-full font-semibold transition-all duration-200 ${
-              canUndo 
+              canUndo && !disabled
                 ? 'bg-gradient-to-r from-orange-500 to-red-500 text-white hover:from-orange-600 hover:to-red-600 transform hover:scale-105' 
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
@@ -44,8 +44,13 @@ const GameControls = ({ onUndo, onNewGame, canUndo, gameHistory, currentSettings
           
           <Button
             onClick={onNewGame}
+            disabled={disabled}
             variant="outline"
-            className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 font-semibold transform hover:scale-105 transition-all duration-200"
+            className={`w-full font-semibold transform hover:scale-105 transition-all duration-200 ${
+              disabled
+                ? 'bg-gray-200 text-gray-500 cursor-not-allowed'
+                : 'bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600'
+            }`}
           >
             🔄 New Game
           </Button>
