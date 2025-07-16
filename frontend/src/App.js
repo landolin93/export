@@ -5,14 +5,31 @@ import GameBoard from "./components/GameBoard";
 import StarTracker from "./components/StarTracker";
 import GameStatus from "./components/GameStatus";
 import GameRules from "./components/GameRules";
+import GameSettings from "./components/GameSettings";
+import GameControls from "./components/GameControls";
 import { Button } from "./components/ui/button";
-import { mockGameState, mockGameLogic, createEmptyBoard } from "./utils/mockData";
+import { createInitialGameState, defaultGameSettings, mockGameLogic } from "./utils/mockData";
 import { useToast } from "./hooks/use-toast";
 import { Toaster } from "./components/ui/toaster";
 
 const StarDirectionGame = () => {
-  const [gameState, setGameState] = useState(mockGameState);
+  const [gameSettings, setGameSettings] = useState(defaultGameSettings);
+  const [gameState, setGameState] = useState(createInitialGameState(gameSettings));
   const { toast } = useToast();
+
+  const saveGameState = (newState, action) => {
+    const snapshot = mockGameLogic.createGameStateSnapshot(gameState);
+    const historyEntry = {
+      ...snapshot,
+      action,
+      timestamp: Date.now()
+    };
+    
+    setGameState(prev => ({
+      ...newState,
+      gameHistory: [...prev.gameHistory, historyEntry]
+    }));
+  };
 
   const handleCellClick = (row, col) => {
     if (gameState.currentPlayer !== 1 || gameState.gamePhase !== 'placement' || gameState.winner) {
@@ -21,13 +38,15 @@ const StarDirectionGame = () => {
 
     const newBoard = mockGameLogic.placeStar(gameState.board, row, col);
     if (newBoard !== gameState.board) {
-      setGameState(prev => ({
-        ...prev,
+      const newState = {
+        ...gameState,
         board: newBoard,
         currentPlayer: 2,
         gamePhase: 'direction',
-        starsPlaced: prev.starsPlaced + 1
-      }));
+        starsPlaced: gameState.starsPlaced + 1
+      };
+      
+      saveGameState(newState, `Star placed at (${row}, ${col})`);
       
       toast({
         title: "Star Placed! ⭐",
@@ -44,17 +63,19 @@ const StarDirectionGame = () => {
     const newBoard = mockGameLogic.applyDirection(gameState.board, direction);
     const newAvailableDirections = gameState.availableDirections.filter(d => d !== direction);
     const newRound = gameState.round + 1;
-    const winner = mockGameLogic.checkWinner(newBoard, newRound);
+    const { winner } = mockGameLogic.checkWinner(newBoard, newRound, gameState.settings);
 
-    setGameState(prev => ({
-      ...prev,
+    const newState = {
+      ...gameState,
       board: newBoard,
       currentPlayer: 1,
       gamePhase: 'placement',
       round: newRound,
       availableDirections: newAvailableDirections,
       winner: winner
-    }));
+    };
+
+    saveGameState(newState, `Direction selected: ${direction}`);
 
     toast({
       title: `Direction Selected! ${direction}`,
@@ -62,21 +83,37 @@ const StarDirectionGame = () => {
     });
   };
 
-  const resetGame = () => {
+  const handleUndo = () => {
+    if (gameState.gameHistory.length === 0) return;
+    
+    const lastState = gameState.gameHistory[gameState.gameHistory.length - 1];
+    const newHistory = gameState.gameHistory.slice(0, -1);
+    
     setGameState({
-      board: createEmptyBoard(),
-      currentPlayer: 1,
-      gamePhase: 'placement',
-      round: 1,
-      availableDirections: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW'],
-      winner: null,
-      starsPlaced: 0,
-      gameHistory: []
+      ...lastState,
+      gameHistory: newHistory
     });
+    
+    toast({
+      title: "Move Undone! ↶",
+      description: "Returned to previous game state",
+    });
+  };
+
+  const resetGame = () => {
+    setGameState(createInitialGameState(gameSettings));
     
     toast({
       title: "Game Reset! 🎮",
       description: "New game started. Player 1 goes first!",
+    });
+  };
+
+  const handleSettingsChange = (newSettings) => {
+    setGameSettings(newSettings);
+    toast({
+      title: "Settings Updated! ⚙️",
+      description: "New game started with updated settings",
     });
   };
 
