@@ -4,8 +4,6 @@ import { Badge } from './ui/badge';
 import { mockGameLogic } from '../utils/mockData';
 
 const GameStatus = ({ currentPlayer, gamePhase, round, winner, starsPlaced, board, settings }) => {
-  const emptySquares = mockGameLogic.countEmptySquares(board);
-  
   const getPhaseDescription = () => {
     if (winner) return 'Game Over';
     if (gamePhase === 'placement') return 'Place a star';
@@ -16,21 +14,6 @@ const GameStatus = ({ currentPlayer, gamePhase, round, winner, starsPlaced, boar
   const getPlayerColor = (player) => {
     return player === 1 ? 'bg-yellow-500' : 'bg-purple-500';
   };
-
-  const getWinConditionStatus = () => {
-    if (winner) return null;
-    
-    const needed = settings.emptySquaresToWin;
-    const current = emptySquares;
-    
-    if (current >= needed) {
-      return { status: 'winning', color: 'text-green-600' };
-    } else {
-      return { status: 'losing', color: 'text-red-600' };
-    }
-  };
-
-  const winStatus = getWinConditionStatus();
 
   return (
     <Card className="p-6 bg-gradient-to-br from-green-50 to-blue-50">
@@ -45,9 +28,7 @@ const GameStatus = ({ currentPlayer, gamePhase, round, winner, starsPlaced, boar
                 🏆 Player {winner} Wins!
               </Badge>
               <p className="text-sm text-gray-600">
-                {winner === 1 
-                  ? `${emptySquares} empty squares ≥ ${settings.emptySquaresToWin} needed!` 
-                  : `${emptySquares} empty squares < ${settings.emptySquaresToWin} needed!`}
+                {winner === 1 ? 'Empty squares remain!' : 'Board completely filled!'}
               </p>
             </div>
           ) : (
@@ -72,26 +53,6 @@ const GameStatus = ({ currentPlayer, gamePhase, round, winner, starsPlaced, boar
           <div className="space-y-1">
             <div className="text-sm text-gray-500">Directions Used</div>
             <div className="text-2xl font-bold text-purple-600">{settings.numberOfRounds - (round - 1)}</div>
-          </div>
-        </div>
-
-        {/* Win Condition Status */}
-        <div className="bg-white p-3 rounded-lg border">
-          <div className="text-center">
-            <div className="text-sm text-gray-500 mb-1">Win Condition</div>
-            <div className="space-y-1">
-              <div className={`text-xl font-bold ${winStatus?.color || 'text-gray-800'}`}>
-                {emptySquares} / {settings.emptySquaresToWin} empty squares
-              </div>
-              <div className="text-xs text-gray-600">
-                Player 1 needs ≥{settings.emptySquaresToWin} to win
-              </div>
-              {winStatus && !winner && (
-                <div className={`text-xs font-semibold ${winStatus.color}`}>
-                  Player 1 currently {winStatus.status}
-                </div>
-              )}
-            </div>
           </div>
         </div>
       </div>
