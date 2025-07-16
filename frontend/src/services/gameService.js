@@ -6,9 +6,14 @@ const API = `${BACKEND_URL}/api/game`;
 class GameService {
   static async createGame(settings = null) {
     try {
+      console.log('Creating game with API URL:', API);
+      console.log('Settings:', settings);
       const response = await axios.post(API, { settings });
+      console.log('Game creation response:', response.data);
       return response.data;
     } catch (error) {
+      console.error('Game creation error:', error);
+      console.error('Error response:', error.response);
       throw new Error(error.response?.data?.detail || 'Failed to create game');
     }
   }
