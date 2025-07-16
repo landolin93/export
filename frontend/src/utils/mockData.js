@@ -1,0 +1,93 @@
+// Mock data for the Star Direction Game
+export const createEmptyBoard = () => {
+  return Array.from({ length: 6 }, () => Array(6).fill('empty'));
+};
+
+export const mockGameState = {
+  board: createEmptyBoard(),
+  currentPlayer: 1,
+  gamePhase: 'placement', // 'placement' or 'direction'
+  round: 1,
+  availableDirections: ['N', 'S', 'E', 'W', 'NE', 'NW', 'SE', 'SW'],
+  winner: null,
+  starsPlaced: 0,
+  gameHistory: []
+};
+
+// Direction vectors for calculating circle positions
+export const directionVectors = {
+  N: [-1, 0],
+  S: [1, 0],
+  E: [0, 1],
+  W: [0, -1],
+  NE: [-1, 1],
+  NW: [-1, -1],
+  SE: [1, 1],
+  SW: [1, -1]
+};
+
+// Mock game logic functions
+export const mockGameLogic = {
+  placeStar: (board, row, col) => {
+    if (board[row][col] === 'empty') {
+      const newBoard = board.map(r => [...r]);
+      newBoard[row][col] = 'star';
+      return newBoard;
+    }
+    return board;
+  },
+
+  applyDirection: (board, direction) => {
+    const newBoard = board.map(r => [...r]);
+    const [dRow, dCol] = directionVectors[direction];
+    
+    // Find all stars and draw lines in the selected direction
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 6; col++) {
+        if (board[row][col] === 'star') {
+          // Draw line from this star in the selected direction
+          let currentRow = row + dRow;
+          let currentCol = col + dCol;
+          
+          while (currentRow >= 0 && currentRow < 6 && currentCol >= 0 && currentCol < 6) {
+            if (newBoard[currentRow][currentCol] === 'empty') {
+              newBoard[currentRow][currentCol] = 'circle';
+            }
+            currentRow += dRow;
+            currentCol += dCol;
+          }
+        }
+      }
+    }
+    
+    return newBoard;
+  },
+
+  checkWinner: (board, round) => {
+    // Game ends after 8 rounds
+    if (round > 8) {
+      // Check if any empty squares remain
+      for (let row = 0; row < 6; row++) {
+        for (let col = 0; col < 6; col++) {
+          if (board[row][col] === 'empty') {
+            return 1; // Player 1 wins if empty squares remain
+          }
+        }
+      }
+      return 2; // Player 2 wins if board is completely filled
+    }
+    return null;
+  },
+
+  countStars: (board) => {
+    let count = 0;
+    for (let row = 0; row < 6; row++) {
+      for (let col = 0; col < 6; col++) {
+        if (board[row][col] === 'star') {
+          count++;
+        }
+      }
+    }
+    return count;
+  }
+};
