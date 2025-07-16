@@ -146,6 +146,8 @@ const StarDirectionGame = () => {
               round={gameState.round}
               winner={gameState.winner}
               starsPlaced={gameState.starsPlaced}
+              board={gameState.board}
+              settings={gameState.settings}
             />
             
             <StarTracker
@@ -155,13 +157,19 @@ const StarDirectionGame = () => {
               gamePhase={gameState.gamePhase}
             />
             
-            <Button
-              onClick={resetGame}
-              variant="outline"
-              className="w-full bg-gradient-to-r from-green-500 to-teal-500 text-white hover:from-green-600 hover:to-teal-600 font-semibold"
-            >
-              🔄 New Game
-            </Button>
+            <GameControls
+              onUndo={handleUndo}
+              onNewGame={resetGame}
+              canUndo={gameState.gameHistory.length > 0}
+              gameHistory={gameState.gameHistory}
+              currentSettings={gameState.settings}
+            />
+            
+            <GameSettings
+              currentSettings={gameSettings}
+              onSettingsChange={handleSettingsChange}
+              onNewGame={resetGame}
+            />
           </div>
         </div>
 
