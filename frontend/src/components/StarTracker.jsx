@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 
-const StarTracker = ({ availableDirections, onDirectionSelect, currentPlayer, gamePhase }) => {
+const StarTracker = ({ availableDirections, onDirectionSelect, currentPlayer, gamePhase, disabled = false }) => {
   const directions = [
     { key: 'N', label: 'North ↑', icon: '↑' },
     { key: 'S', label: 'South ↓', icon: '↓' },
@@ -14,7 +14,7 @@ const StarTracker = ({ availableDirections, onDirectionSelect, currentPlayer, ga
     { key: 'SW', label: 'Southwest ↙', icon: '↙' }
   ];
 
-  const isActive = currentPlayer === 2 && gamePhase === 'direction';
+  const isActive = currentPlayer === 2 && gamePhase === 'direction' && !disabled;
 
   return (
     <Card className="p-6 bg-gradient-to-br from-purple-50 to-pink-50">
@@ -34,9 +34,9 @@ const StarTracker = ({ availableDirections, onDirectionSelect, currentPlayer, ga
                   : isActive 
                     ? 'bg-purple-600 hover:bg-purple-700 text-white transform hover:scale-105' 
                     : 'bg-purple-400 text-white cursor-not-allowed'
-              }`}
+              } ${disabled ? 'opacity-50' : ''}`}
               onClick={() => isActive && isAvailable && onDirectionSelect(direction.key)}
-              disabled={isUsed || !isActive}
+              disabled={isUsed || !isActive || disabled}
             >
               <span className="mr-2">{direction.icon}</span>
               {direction.key}
