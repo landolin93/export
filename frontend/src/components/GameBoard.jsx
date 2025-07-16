@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from './ui/button';
 import { Card } from './ui/card';
 
-const GameBoard = ({ board, onCellClick, currentPlayer, gamePhase }) => {
+const GameBoard = ({ board, onCellClick, currentPlayer, gamePhase, disabled = false }) => {
   const renderCell = (row, col) => {
     const cell = board[row][col];
     let cellContent = '';
@@ -18,11 +18,14 @@ const GameBoard = ({ board, onCellClick, currentPlayer, gamePhase }) => {
       cellClass += ' bg-white hover:bg-gray-50';
     }
     
-    // Disable clicking if not Player 1's turn or not in placement phase
-    const isClickable = currentPlayer === 1 && gamePhase === 'placement' && cell === 'empty';
+    // Disable clicking if not Player 1's turn or not in placement phase or disabled
+    const isClickable = currentPlayer === 1 && gamePhase === 'placement' && cell === 'empty' && !disabled;
     
     if (!isClickable) {
       cellClass = cellClass.replace('cursor-pointer', 'cursor-not-allowed');
+      if (disabled) {
+        cellClass += ' opacity-50';
+      }
     }
     
     return (
